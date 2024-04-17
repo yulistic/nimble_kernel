@@ -149,6 +149,7 @@ static int migrate_to_node(struct list_head *page_list, int nid,
 	int num = 0;
 	int from_nid = -1;
 	int err;
+	struct page *page, *page2;
 
 	if (list_empty(page_list))
 		return num;
@@ -166,6 +167,13 @@ static int migrate_to_node(struct list_head *page_list, int nid,
 		}
 
 		from_nid = page_to_nid(list_first_entry(&batch_page_list, struct page, lru));
+		
+		// Print only without migration.
+		list_for_each_entry_safe(page, page2, &batch_page_list, lru) {
+			    pr_warn("nimble src %lx @ nid %d, dst @ nid %d, pid %d\n",
+					            page_pfn(page), from_nid, nid, current->pid
+						        );
+		}
 
 		if (migrate_concur)
 			err = migrate_pages_concur(&batch_page_list, alloc_new_node_page,
