@@ -168,19 +168,23 @@ static int migrate_to_node(struct list_head *page_list, int nid,
 
 		from_nid = page_to_nid(list_first_entry(&batch_page_list, struct page, lru));
 		
-		// Print only without migration.
-		list_for_each_entry_safe(page, page2, &batch_page_list, lru) {
-			    pr_warn("nimble src %lx @ nid %d, dst @ nid %d, pid %d\n",
-					            page_pfn(page), from_nid, nid, current->pid
-						        );
+		// XXX: Logging.
+		list_for_each_entry_safe (page, page2, &batch_page_list, lru) {
+			pr_warn("nimble src %lx @ nid %d, dst @ nid %d, pid %d\n",
+				page_to_pfn(page), from_nid, nid, current->pid);
 		}
 
-		if (migrate_concur)
-			err = migrate_pages_concur(&batch_page_list, alloc_new_node_page,
-				NULL, nid, mode, MR_SYSCALL);
-		else
-			err = migrate_pages(&batch_page_list, alloc_new_node_page,
-				NULL, nid, mode, MR_SYSCALL);
+		// XXX: Do not migrate.
+		// if (migrate_concur)
+		// 	err = migrate_pages_concur(&batch_page_list, alloc_new_node_page,
+		// 		NULL, nid, mode, MR_SYSCALL);
+		// else
+		// 	err = migrate_pages(&batch_page_list, alloc_new_node_page,
+		// 		NULL, nid, mode, MR_SYSCALL);
+
+		// XXX: putback pages.
+		putback_movable_pages(&batch_page_list);
+		err = 0;
 
 		if (err) {
 			struct page *page;
